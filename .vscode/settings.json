@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "math.h": "c",
+        "cmath": "c",
+        "motionstate.h": "c",
+        "initializer_list": "c",
+        "limits": "c",
+        "motion.h": "c"
+    }
+}
