@@ -1,20 +1,16 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Program Files (x86)/Arduino/hardware/teensy/**"
+                "/usr/local/lib/**"
             ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "compilerPath": "C:/mingw-w64/mingw64/bin/gcc.exe",
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x64"
+            "intelliSenseMode": "${default}"
         }
     ],
     "version": 4

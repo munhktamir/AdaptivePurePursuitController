@@ -1,6 +1,6 @@
 #include <math.h>
-#include "Geometry.h"
-#include "Motion.h"
+#include "../utils/Geometry.h"
+#include "../motion/Motion.h"
 #include "Path.h"
 
 

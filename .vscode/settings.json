@@ -5,6 +5,7 @@
         "motionstate.h": "c",
         "initializer_list": "c",
         "limits": "c",
-        "motion.h": "c"
+        "motion.h": "c",
+        "check.h": "c"
     }
 }

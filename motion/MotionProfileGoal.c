@@ -1,8 +1,6 @@
 //#include <math.h>
-#include "Utils.h"
-//#include "Constants.h"
 #include "Motion.h"
-
+#include "../utils/Utils.h"
 
 /******************************************************************************************************************************** 
 **  AtGoalPosition
@@ -76,7 +74,7 @@ enum completionBehavior_e SanityCheck (motionProfileGoal_t *goal) {
 
 
 /******************************************************************************************************************************** 
-**  SanityCheck
+**  GoalsAreEqual
 **
 **      Input:
 **

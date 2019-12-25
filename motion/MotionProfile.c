@@ -1,8 +1,32 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "Motion.h"
-#include "Utils.h"
-#include "Constants.h"
+#include "../utils/Utils.h"
+#include "../robot/RobotMap.h"
+
+
+/******************************************************************************************************************************** 
+**  PrintProfile
+**
+**      Input:
+**
+**      Output:
+**
+********************************************************************************************************************************/
+void PrintProfile (motionProfileList_t *profile) {
+    motionProfileNode_t *profileNode;
+    
+    profileNode = profile->head;
+    printf("====================================\n");
+    printf("Profile\n");
+    printf("====================================\n");
+    printf("%8s %8s %8s %8s %8s %8s %8s %8s\n","s_t", "s_pos", "s_vel", "s_acc", "e_t", "e_pos", "e_vel", "e_acc");
+    while ( profileNode ) {
+        printf("%8.4f %8.4f %8.4f %8.4f %8.4f %8.4f %8.4f %8.4f\n", profileNode->segment.start.t, profileNode->segment.start.pos, profileNode->segment.start.vel, profileNode->segment.start.acc, profileNode->segment.end.t, profileNode->segment.end.pos, profileNode->segment.end.vel, profileNode->segment.end.acc);
+        profileNode = profileNode->next;
+    }
+}
 
 
 /******************************************************************************************************************************** 
@@ -107,18 +131,24 @@ void AppendControl (motionProfileList_t *profile, double acc, double dt) {
 **
 ********************************************************************************************************************************/
 void Consolidate (motionProfileList_t *profile) {
-    motionProfileNode_t *currentNode, *nextNode;
+    motionProfileNode_t *currentNode, *prevNode, *freeNode;
     
     currentNode = profile->head;
-    nextNode = currentNode->next;
-    while ( nextNode && profile->length > 1 ) {
-        if ( Coincident( &nextNode->segment.start, &nextNode->segment.end ) ) {
-            currentNode->next = nextNode->next;
-            free (nextNode);
-            nextNode = currentNode->next;
+    prevNode = NULL;
+    while ( currentNode && profile->length > 1 ) {
+        if ( Coincident( &currentNode->segment.start, &currentNode->segment.end ) ) {
+            if ( prevNode ) {
+                prevNode->next = currentNode->next;
+            } else {
+                profile->head = currentNode->next;
+            }
+            freeNode = currentNode;
+            currentNode = currentNode->next;
+            free( freeNode );
+            profile->length = profile->length - 1;
         } else {
-            currentNode = nextNode;
-            nextNode = currentNode->next;
+            prevNode = currentNode;
+            currentNode = currentNode->next;
         }
     }
 }
@@ -166,6 +196,7 @@ void TrimBeforeTime(motionProfileList_t *profile, double t) {
             currentNode = currentNode->next;
             profile->head = currentNode;
             free (deleteNode);
+            profile->length = profile->length - 1; 
             continue;
         }
         if ( currentNode->segment.start.t <= t ) {
@@ -199,7 +230,7 @@ int IsProfileValid (motionProfileList_t *profile) {
         if ( !IsSegmentValid( &currentNode->segment ) ) {
             return 0;
         }
-        if ( !prevNode ) {
+        if ( prevNode ) {
             if ( !Coincident( &currentNode->segment.start, &prevNode->segment.end ) ) {      
               // Adjacent segments are not continuous.
               //System.err.println("Segments not continuous! End: " + prev_segment.end() + ", Start: " + s.start());
@@ -228,7 +259,7 @@ motionState_t StateByTime (motionProfileList_t *profile, double t) {
         rv = profile->head->segment.start;
     
     } else if ( t > profile->tail->segment.end.t && t - kEpsilon <= profile->tail->segment.end.t ) {
-        rv = profile->head->segment.end;
+        rv = profile->tail->segment.end;
     
     } else {
         profileNode = profile->head;
@@ -261,7 +292,7 @@ motionState_t StateByTimeClamped (motionProfileList_t *profile, double t) {
         rv = profile->head->segment.start;
     
     } else if ( t > profile->tail->segment.end.t ) {
-        rv = profile->head->segment.end;
+        rv = profile->tail->segment.end;
     
     } else {
         profileNode = profile->head;

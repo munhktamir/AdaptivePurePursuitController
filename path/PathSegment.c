@@ -1,8 +1,7 @@
 #include "Geometry.h"
-#include "Constants.h"
-#include "Motion.h"
+#include "../robot/RobotMap.h"
+#include "../motion/Motion.h"
 #include "Path.h"
-
 
 
 /******************************************************************************************************************************** 
@@ -22,7 +21,7 @@ motionProfileList_t CreateMotionProfiler (motionState_t *startState, double endS
     motionConstraints.maxAbsAcc = kPathFollowingMaxAccel;
     goalState.completionBehavior = OVERSHOOT;
     goalState.maxAbsVel = endSpeed;
-    goalState.pos = length; //getLength();
+    goalState.pos = length;
     goalState.posTolerance = 1e-3;
     goalState.velTolerance = 1e-2;
     if ( motionConstraints.maxAbsVel > goalState.velTolerance && goalState.completionBehavior == OVERSHOOT ) {

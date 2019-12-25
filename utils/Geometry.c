@@ -137,7 +137,6 @@ translation2d_t RotationToTranslation (rotation2d_t *rot) {
 
 
 rotation2d_t RotateAbyB (rotation2d_t *rotA, rotation2d_t *rotB) {
-    double cosAngle, sinAngle;
     rotation2d_t rv;
 
     rv.cosTheta_rad = rotA->cosTheta_rad * rotB->cosTheta_rad - rotA->sinTheta_rad * rotB->sinTheta_rad;
@@ -303,8 +302,8 @@ int IsColinear (transform2d_t *tfrmA, transform2d_t *tfrmB) {
     transform2d_t invertedTfrm;
     twist2d_t twist;
     
-    invertedTfrm = TransformInverse( &tfrmA );
-    invertedTfrm = TranformAByB( &invertedTfrm, &tfrmB);
+    invertedTfrm = TransformInverse( tfrmA );
+    invertedTfrm = TranformAByB( &invertedTfrm, tfrmB);
     twist = Log( &invertedTfrm );    
     rv = ( EpsilonEquals(twist.dx_in, 0.0, 1e-9 ) && EpsilonEquals( twist.dtheta_rad, 0.0, 1e-9 ) );
     return rv;

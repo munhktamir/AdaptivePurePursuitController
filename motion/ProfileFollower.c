@@ -1,9 +1,36 @@
 #include <stdlib.h>
 #include <math.h>
-#include "Constants.h"
-#include "Utils.h"
 #include "Motion.h"
+#include "../utils/Utils.h"
 
+
+profileFollower_t * CreateProfileFollower () {
+    profileFollower_t *profileFollower;
+
+    profileFollower = ( profileFollower_t * ) malloc( sizeof( profileFollower_t ) );
+    profileFollower->kP = 0.0;
+    profileFollower->kI = 0.0;
+    profileFollower->kV = 0.0;
+    profileFollower->kFFV = 0.0;
+    profileFollower->kFFA = 0.0;
+    profileFollower->minOutput = 0.0;
+    profileFollower->maxOutput = 0.0;
+    profileFollower->latestActualState = kInvalidMotionState;
+    profileFollower->initialState = kInvalidMotionState;
+    profileFollower->latestPosError = 0.0;
+    profileFollower->latestVelError = 0.0;
+    profileFollower->totalError = 0.0;
+    profileFollower->goal = ( motionProfileGoal_t * ) malloc( sizeof( motionProfileGoal_t ) );
+    *(profileFollower->goal) = kInvalidMotionProfileGoal;
+    profileFollower->constraints = ( motionProfileConstraints_t * ) malloc( sizeof( motionProfileConstraints_t ) );
+    *(profileFollower->constraints) = kInvalidMotionProfileConstraints;
+    profileFollower->setpointGenerator = ( setpointGenerator_t * ) malloc( sizeof( setpointGenerator_t ) );
+    *(profileFollower->setpointGenerator) = kInvalidSetpointGenerator;
+    profileFollower->latestSetpoint = ( setpoint_t * ) malloc( sizeof( setpoint_t ) );
+    *(profileFollower->latestSetpoint) = kInvalidSetpoint;
+
+    return profileFollower;
+}
 
 /******************************************************************************************************************************** 
 **  SetProfileFollowerGains
@@ -31,9 +58,11 @@ void SetProfileFollowerGains (profileFollower_t *profileFollower, double kp, dou
 **
 ********************************************************************************************************************************/
 void SetProfileFollowerGoalAndConstraints (profileFollower_t *profileFollower, motionProfileGoal_t *goal, motionProfileConstraints_t *constraints) {
-    if ( profileFollower->goal && !GoalsAreEqual( profileFollower->goal, goal ) && profileFollower->latestSetpoint ) {
-        // Clear the final state bit since the goal has changed.
-        profileFollower->latestSetpoint->finalSetpoint = 0;
+    if( profileFollower->goal ) {
+        if( !GoalsAreEqual( profileFollower->goal, goal ) && profileFollower->latestSetpoint ) {
+            // Clear the final state bit since the goal has changed.
+            profileFollower->latestSetpoint->finalSetpoint = 0;
+        }
     }
     *(profileFollower->goal) = *goal;
     *(profileFollower->constraints) = *constraints;
@@ -60,7 +89,7 @@ void ClearProfileFollower (profileFollower_t *profileFollower) {
     profileFollower->constraints = NULL;
     free( profileFollower->goal );
     profileFollower->goal = NULL;
-    ClearSetpointGenerator( profileFollower->setppointGenerator );
+    ClearSetpointGenerator( profileFollower->setpointGenerator );
     free( profileFollower->latestSetpoint );
     profileFollower->latestSetpoint = NULL;
 }
@@ -88,7 +117,7 @@ double ProfileFollowerUpdate (profileFollower_t *profileFollower, motionState_t 
         profileFollower->initialState = prevState;
     }
     dt = fmax( 0.0, prevState.t );
-    *(profileFollower->latestSetpoint) = GetSetpoint(profileFollower->setppointGenerator, profileFollower->constraints, profileFollower->goal, &prevState, t);
+    *(profileFollower->latestSetpoint) = GetSetpoint(profileFollower->setpointGenerator, profileFollower->constraints, profileFollower->goal, &prevState, t);
    
     // Update error
     profileFollower->latestPosError = profileFollower->latestSetpoint->motionState.pos - latestState->pos;

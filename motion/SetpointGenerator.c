@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "Motion.h"
-#include "Utils.h"
+#include "../utils/Utils.h"
+
 
 /******************************************************************************************************************************** 
 **  ClearSetpointGenerator
@@ -61,7 +62,7 @@ setpoint_t GetSetpoint (setpointGenerator_t *setpointGenerator, motionProfileCon
     int regenerate;
     motionState_t expectedState;
 
-    regenerate = !setpointGenerator->constraints || ConstraintsAreEqual( setpointGenerator->constraints, constraints ) || !setpointGenerator->goal || GoalsAreEqual( setpointGenerator->goal, goal ) || !setpointGenerator->profile;
+    regenerate = !setpointGenerator->constraints || !ConstraintsAreEqual( setpointGenerator->constraints, constraints ) || !setpointGenerator->goal || !GoalsAreEqual( setpointGenerator->goal, goal ) || !setpointGenerator->profile;
 
     if ( !regenerate && setpointGenerator->profile->length ) {
         expectedState = StateByTime( setpointGenerator->profile, prevState->t );
@@ -78,8 +79,8 @@ setpoint_t GetSetpoint (setpointGenerator_t *setpointGenerator, motionProfileCon
     if ( setpointGenerator->profile && IsProfileValid( setpointGenerator->profile ) ) {
         if ( t > setpointGenerator->profile->tail->segment.end.t ) {
             rv.motionState = setpointGenerator->profile->tail->segment.end;
-        } else if ( t < setpointGenerator->profile->tail->segment.start.t ) {
-            rv.motionState = setpointGenerator->profile->tail->segment.start;
+        } else if ( t < setpointGenerator->profile->head->segment.start.t ) {
+            rv.motionState = setpointGenerator->profile->head->segment.start;
         } else {
             rv.motionState = StateByTime( setpointGenerator->profile, t );
         } 

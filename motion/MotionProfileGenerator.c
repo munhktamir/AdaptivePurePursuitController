@@ -1,8 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include "Motion.h"
-#include "Utils.h"
-#include "Constants.h"
+#include "../utils/Utils.h"
+#include "../robot/RobotMap.h"
 
 
 /******************************************************************************************************************************** 
@@ -47,6 +47,13 @@ motionProfileList_t GenerateProfile (motionProfileConstraints_t *constraints, mo
     motionState_t startState;
     motionSegment_t segment;
     double deltaPos, stoppingTime, minAbsVelAtGoalSqr, minAbsVelAtGoal, maxAbsVelAtGoal, goalVel, maxAcc, vMax, accelTime, distanceDecel, distanceCruise, cruiseTime, decelTime;
+
+    profile.head = NULL;
+    profile.tail = NULL;
+    profile.length = 0;
+    flippedProfile.head = NULL;
+    flippedProfile.tail = NULL;
+    flippedProfile.length = 0;
 
     deltaPos = goalState->pos - prevState->pos;
     if ( deltaPos < 0.0 || ( deltaPos == 0.0 && prevState->vel < 0.0) ) {
